@@ -6,6 +6,7 @@ pipeline {
   
   environment {
     MAIL_TO = 'ydinethw@gmail.com'
+    MAIL_FROM = 'headshot999plus@gmail.com
   }
 
   stages {
@@ -42,6 +43,7 @@ pipeline {
         failure {
           emailext(
             to: env.MAIL_TO,
+            from: env.MAIL_FROM,
             subject: "Stage 2 (Tests): FAILURE — ${env.JOB_NAME} #${env.BUILD_NUMBER}",
             body: "Stage 2 finished FAILURE.\nBuild: ${env.BUILD_URL}",
             attachLog: true
@@ -74,6 +76,7 @@ pipeline {
         unstable {
           emailext(
             to: env.MAIL_TO,
+            from: env.MAIL_FROM,
             subject: "Stage 4 (Security Scan): UNSTABLE — ${env.JOB_NAME} #${env.BUILD_NUMBER}",
             body: "Stage 4 finished UNSTABLE.\nBuild: ${env.BUILD_URL}",
             attachLog: true
