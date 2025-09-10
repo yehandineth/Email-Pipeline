@@ -7,6 +7,7 @@ pipeline {
   }
 
   stages {
+
     stage('Stage 1: Build') {
       steps {
         echo 'Task: Compile and package the source code.'
@@ -16,21 +17,35 @@ pipeline {
 
     stage('Stage 2: Unit and Integration Tests') {
       steps {
-        script {
-          echo 'Task: Run unit tests for code correctness and integration tests to verify components work together.'
-          echo 'Tool: JUnit (unit), Maven Failsafe or Testcontainers (integration)'
-
-          def statusText = 'SUCCESS' // theoretical stage
-          writeFile file: 'stage2-tests.log', text: """[Stage] Stage 2: Unit and Integration Tests
-[Status] ${statusText}
-[Details] Printed Task/Tool as required."""
-          def bodyTxt = readFile 'stage2-tests.log'
-          mail to: env.MAIL_TO,
-               subject: "Stage 2 (Tests): ${statusText} — ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-               body: bodyTxt
+        echo 'Task: Run unit tests for code correctness and integration tests to verify components work together.'
+        echo 'Tool: JUnit (unit), Maven Failsafe or Testcontainers (integration)'
+      }
+      post {
+        success {
+          emailext(
+            to: env.MAIL_TO,
+            subject: "Stage 2 (Tests): SUCCESS — ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+            body: "Stage 2 finished SUCCESS.\nBuild: ${env.BUILD_URL}",
+            attachLog: true
+          )
+        }
+        unstable {
+          emailext(
+            to: env.MAIL_TO,
+            subject: "Stage 2 (Tests): UNSTABLE — ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+            body: "Stage 2 finished UNSTABLE.\nBuild: ${env.BUILD_URL}",
+            attachLog: true
+          )
+        }
+        failure {
+          emailext(
+            to: env.MAIL_TO,
+            subject: "Stage 2 (Tests): FAILURE — ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+            body: "Stage 2 finished FAILURE.\nBuild: ${env.BUILD_URL}",
+            attachLog: true
+          )
         }
       }
-      post { always { archiveArtifacts artifacts: 'stage2-tests.log', allowEmptyArchive: true } }
     }
 
     stage('Stage 3: Code Analysis') {
@@ -42,21 +57,35 @@ pipeline {
 
     stage('Stage 4: Security Scan') {
       steps {
-        script {
-          echo 'Task: Scan code and dependencies for known vulnerabilities.'
-          echo 'Tool: Snyk'
-
-          def statusText = 'SUCCESS' // theoretical stage
-          writeFile file: 'stage4-audit.log', text: """[Stage] Stage 4: Security Scan
-[Status] ${statusText}
-[Details] Printed Task/Tool as required."""
-          def bodyTxt = readFile 'stage4-audit.log'
-          mail to: env.MAIL_TO,
-               subject: "Stage 4 (Security Scan): ${statusText} — ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-               body: bodyTxt
+        echo 'Task: Scan code and dependencies for known vulnerabilities.'
+        echo 'Tool: Snyk'
+      }
+      post {
+        success {
+          emailext(
+            to: env.MAIL_TO,
+            subject: "Stage 4 (Security Scan): SUCCESS — ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+            body: "Stage 4 finished SUCCESS.\nBuild: ${env.BUILD_URL}",
+            attachLog: true
+          )
+        }
+        unstable {
+          emailext(
+            to: env.MAIL_TO,
+            subject: "Stage 4 (Security Scan): UNSTABLE — ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+            body: "Stage 4 finished UNSTABLE.\nBuild: ${env.BUILD_URL}",
+            attachLog: true
+          )
+        }
+        failure {
+          emailext(
+            to: env.MAIL_TO,
+            subject: "Stage 4 (Security Scan): FAILURE — ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+            body: "Stage 4 finished FAILURE.\nBuild: ${env.BUILD_URL}",
+            attachLog: true
+          )
         }
       }
-      post { always { archiveArtifacts artifacts: 'stage4-audit.log', allowEmptyArchive: true } }
     }
 
     stage('Stage 5: Deploy to Staging') {
