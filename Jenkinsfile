@@ -5,7 +5,7 @@ pipeline {
   triggers { pollSCM('H/5 * * * *') }
   
   environment {
-    MAIL_TO = 'headshot999plus@gmail.com'
+    MAIL_TO = 'ydinethw@gmail.com'
   }
 
   stages {
