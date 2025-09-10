@@ -2,6 +2,8 @@ pipeline {
   agent any
   options { timestamps() }
 
+  triggers { pollSCM('H/5 * * * *') }
+  
   environment {
     MAIL_TO = 'ydinethw@gmail.com'
   }
